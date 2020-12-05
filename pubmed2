@@ -1,0 +1,48 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+import lxml
+#生成网址
+start_url = input('输入网址：')
+page = input('输入你想搜索前多少页：')
+for i in range(int(page)):
+	url = start_url + "&page=" + str(int(i)+1)
+#爬取网页
+	r = requests.get(url, headers= {'user-agent':'Mozilla/5.0'})
+	r.raise_for_status()
+	r.encoding = r.apparent_encoding
+	html = r.text
+#提取信息
+	soup = BeautifulSoup(html, 'lxml')
+	for paper in soup.find_all('a'):
+		if "docsum-title" in str(paper):
+			name = str(paper).split('">')[-1]
+			title = re.sub(r'(</a>|<b>|</b>)', '', name).strip()
+			with open('deep-sea-10-out.txt', 'a', encoding='utf-8') as out_file:
+				out_file.write(title + '\n')
+
+#合并相同文章
+
+#读取第一篇文字
+title1 = []
+file1 = open(r"C:\Users\mjdee\hello\deep-sea-10-out.txt", "r", encoding="utf-8")
+for line1 in file1:
+	title1.append(line1.strip())
+file1.close()
+print(len(title1))
+
+#读取第二篇文章
+title2 = []
+file2 = open(r"C:\Users\mjdee\hello\deep-sea-10-out.txt", "r", encoding="utf-8")
+for line2 in file2:
+	title2.append(line2.strip())
+file2.close()
+print(len(title2))
+
+#合并结果
+title1.extend(title2)
+print(len(title1))
+
+for article in title1:
+	with open('all-out.txt', 'a', encoding='utf-8') as out_file:
+		out_file.write(article + '\n')
